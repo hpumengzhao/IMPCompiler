@@ -251,10 +251,12 @@ void ParseCommandLine(string s){
 					break;		
 				}
 				if(tokens[i].first=="if") ++bracket;
+				if(tokens[i].first=="else") --bracket;
 				c0+=tokens[i].first;
 				c0+=" ";
 			}
 
+	
 			for(int i=nxt_cut_id+1;i<siz;i++){
 				if(tokens[i].first==";") break;
 				c1+=tokens[i].first;
