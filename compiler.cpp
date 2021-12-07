@@ -169,32 +169,7 @@ int ParseAexp(string s){
 bool ParseBexp(string s){
 	vector<pair<string,int> > tokens=lexer(s);
 	int siz=(int)tokens.size();
-
 	assert(siz>=2);
-	if(siz==3){
-		int left_val;
-		int right_val;
-		//calculate the left value
-		if(tokens[0].second==1){
-			left_val=env[tokens[0].first];
-		}else{
-			left_val=Eval(tokens[0].first);
-		}
-		//calculate the right value
-		if(tokens[2].second==1){
-			right_val=env[tokens[2].first];
-		}else{
-			right_val=Eval(tokens[2].first);
-		}
-
-		if(tokens[1].first=="=="){
-			return left_val==right_val;
-		}
-		if(tokens[1].first=="<="){
-			return left_val<=right_val;
-		}
-	}
-
 	string b0="";
 	string b1="";
 	//!b
@@ -238,6 +213,41 @@ bool ParseBexp(string s){
 			b1+=tokens[i].first;
 		}
 		return ParseBexp(b0)|ParseBexp(b1);
+	}
+
+	string a0="";
+	string a1="";
+	//a0==a1
+	int eq_id=-1;
+	for(int i=0;i<siz;i++){
+		if(tokens[i].first=="=="){
+			eq_id=i;break;
+		}
+	}
+	if(eq_id!=-1){
+		for(int i=0;i<eq_id;i++){
+			a0+=tokens[i].first;
+		}
+		for(int i=eq_id+1;i<siz;i++){
+			a1+=tokens[i].first;
+		}
+		return ParseAexp(a0)==ParseAexp(a1);
+	}
+	//a0<=a1
+	int lq_id=-1;
+	for(int i=0;i<siz;i++){
+		if(tokens[i].first=="<="){
+			lq_id=i;break;
+		}
+	}
+	if(lq_id!=-1){
+		for(int i=0;i<lq_id;i++){
+			a0+=tokens[i].first;
+		}
+		for(int i=lq_id+1;i<siz;i++){
+			a1+=tokens[i].first;
+		}
+		return ParseAexp(a0)<=ParseAexp(a1);
 	}
 
 	return 0;

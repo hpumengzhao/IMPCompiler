@@ -1,4 +1,4 @@
 X:=1;
 Y:=2*X+1;
 Y:=Y;
-while X<=Y do X:=X+1;
+while X-1<=Y*2&X-1<=5 do X:=X+1;
