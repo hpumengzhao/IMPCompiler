@@ -260,8 +260,42 @@ void ParseCommandLine(string s){
 
 	vector<pair<string,int> > tokens=lexer(s);
 	int siz=(int)tokens.size();
+
+	//If should be parsed like Bracket matching
 	if(tokens[0].first=="if"){
 
+		string b;
+		string c0;
+		string c1;
+		int cut_id=-1;
+		for(int i=1;i<siz;i++){//b is between the first if and then...
+			if(tokens[i].first!="then"){
+				b+=tokens[i].first;
+			}else{
+				cut_id=i;
+				break;
+			}
+		}
+		int nxt_cut_id=-1;//the position of else in (if ... then ... else ...)
+		int bracket=0;
+		for(int i=cut_id+1;i<siz;i++){
+			if(tokens[i].first=="else"&&bracket==0){
+				nxt_cut_id=i;
+				break;		
+			}
+			if(tokens[i].first=="if") ++bracket;
+			c0+=tokens[i].first;
+		}
+
+		for(int i=nxt_cut_id+1;i<siz;i++){
+			if(tokens[i].first==";") break;
+			c1+=tokens[i].first;
+		}
+		if(ParseBexp(b)){
+			ParseCommandLine(c0);
+		}else{
+			ParseCommandLine(c1);
+		}
 	}else if(tokens[0].first=="while"){
 		//while b do c ;
 		string b="";
