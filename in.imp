@@ -1,1 +1,4 @@
-if x<=y then x:=x+1 else x:=x+y;
+X:=1;
+Y:=2*X+1;
+Y:=Y;
+while X<=Y do X:=X+1;

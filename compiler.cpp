@@ -161,6 +161,11 @@ int ParseAexp(string s){
 	return -1;
 }
 
+
+/*
+	Parse Bexp and return the value.
+	b::=true|false|a0==a1|a_0<=a1|!b|b0&b1|b0|b1
+*/
 bool ParseBexp(string s){
 	vector<pair<string,int> > tokens=lexer(s);
 	int siz=(int)tokens.size();
@@ -237,29 +242,54 @@ bool ParseBexp(string s){
 
 	return 0;
 }
-//解析出tokens，根据tokens确定语句类型
-void ParseCommandLine(vector<pair<string,int> > tokens){
+/*
+	解析Com
+	c::=skip|X:=a|c0;c1|if b then c0 else c1|while b do c
+*/
+void ParseCommandLine(string s){
 
+	vector<pair<string,int> > tokens=lexer(s);
+	int siz=(int)tokens.size();
 	if(tokens[0].first=="if"){
 
 	}else if(tokens[0].first=="while"){
-
+		//while b do c ;
+		string b="";
+		string c="";
+		int cut_id=-1;
+		for(int i=1;i<siz;i++){
+			if(tokens[i].first!="do") b+=tokens[i].first;
+			else{
+				cut_id=i;
+				break;
+			}
+		}
+		for(int i=cut_id+1;i<siz-1;i++) c+=tokens[i].first;
+		// ParseCommandLine(c);
+		while(ParseBexp(b)){
+			ParseCommandLine(c);
+		}
 	}else if(tokens[0].first=="skip"){
-		
-	}else{//X:=aexp
-
+		//we do nothing here		
+	}else{//X:=aexp;
 		string left=tokens[0].first;
 		string aexp="";
 		for(int i=2;i<(int)tokens.size();i++){
-			aexp+=tokens[i].first;
+			if(tokens[i].first!=";"){
+				aexp+=tokens[i].first;
+			}else{
+				break;
+			}
 		}
 		int right=ParseAexp(aexp);
+
 		vis[left]=1;
 		env[left]=right;
+		return ;
 	}
 }
 int main(){
-	cout<<ParseBexp("X==Y")<<endl;
+	// cout<<ParseBexp("2<=1|1<=2")<<endl;
 	string code_line;
 	while(getline(cin,code_line)){
 		vector<pair<string,int>> tokens=lexer(code_line);
@@ -267,7 +297,11 @@ int main(){
 			cout<<v.first<<" ";
 		}
 		cout<<endl;
-		// ParseCommandLine(tokens);
+		ParseCommandLine(code_line);
 	}	
+	cout<<"res: "<<endl;
+	for(auto v:env){
+		cout<<v.first<<": "<<v.second<<endl;
+	}
 	return 0;
 }
