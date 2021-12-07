@@ -16,7 +16,7 @@ bool isDigit(char c){
 bool isSpecial(char c){
 	return c=='+'||c=='-'||c=='*'||
 	c=='='||c==':'||c==';'||c=='!'||
-	c=='|'||c=='&'||c=='<'||c=='>';
+	c=='|'||c=='&'||c=='<';
 }
 //词法分析
 /*{token,id}
@@ -94,22 +94,148 @@ int Eval(string s){
 }
 //Parse Aexp and return the value.
 int ParseAexp(string s){
-	vector<pair<string,int>> token=lexer(s);
-	int siz=(int)token.size();
+	vector<pair<string,int>> tokens=lexer(s);
+	int siz=(int)tokens.size();
 	//a::=n
-	if(token[0].second==2&&siz==1){
-		return Eval(token[0].first);
+	if(tokens[0].second==2&&siz==1){
+		return Eval(tokens[0].first);
 	}
 	//a::=X
 	if(tokens[0].second==1&&siz==1){
 		return env[tokens[0].first];
 	}
 
+	string a0="";
+	string a1="";
+	//a::=a0+a1
+	int add_id=-1;
+	for(int i=0;i<siz;i++){
+		if(tokens[i].first=="+"){
+			add_id=i;
+			break;
+		}
+	}
 
+	if(add_id!=-1){
+		for(int i=0;i<add_id;i++){
+			a0+=tokens[i].first;
+		}
+		for(int i=add_id+1;i<siz;i++){
+			a1+=tokens[i].first;
+		}
+		return ParseAexp(a0)+ParseAexp(a1);
+	}
+
+	//a::=a0-a1
+	int sub_id=-1;
+	for(int i=0;i<siz;i++){
+		if(tokens[i].first=="-"){
+			sub_id=i;break;
+		}
+	}
+	if(sub_id!=-1){
+		for(int i=0;i<sub_id;i++){
+			a0+=tokens[i].first;
+		}
+		for(int i=sub_id+1;i<siz;i++){
+			a1+=tokens[i].first;
+		}
+		return ParseAexp(a0)-ParseAexp(a1);		
+	}
+	//a::=a0*a1
+	int mul_id=-1;
+	for(int i=0;i<siz;i++){
+		if(tokens[i].first=="*"){
+			mul_id=i;break;
+		}
+	}
+	if(mul_id!=-1){
+		for(int i=0;i<mul_id;i++){
+			a0+=tokens[i].first;
+		}
+		for(int i=mul_id+1;i<siz;i++){
+			a1+=tokens[i].first;
+		}
+		return ParseAexp(a0)*ParseAexp(a1);		
+	}	
+	return -1;
 }
 
 bool ParseBexp(string s){
+	vector<pair<string,int> > tokens=lexer(s);
+	int siz=(int)tokens.size();
 
+	assert(siz>=2);
+	if(siz==3){
+		int left_val;
+		int right_val;
+		//calculate the left value
+		if(tokens[0].second==1){
+			left_val=env[tokens[0].first];
+		}else{
+			left_val=Eval(tokens[0].first);
+		}
+		//calculate the right value
+		if(tokens[2].second==1){
+			right_val=env[tokens[2].first];
+		}else{
+			right_val=Eval(tokens[2].first);
+		}
+
+		if(tokens[1].first=="=="){
+			return left_val==right_val;
+		}
+		if(tokens[1].first=="<="){
+			return left_val<=right_val;
+		}
+	}
+
+	string b0="";
+	string b1="";
+	//!b
+	if(tokens[0].first=="!"){
+		for(int i=1;i<siz;i++){
+			b0+=tokens[i].first;
+		}
+		return !ParseBexp(b0);
+	}
+	//b0 & b1;
+
+	int and_id=-1;
+	for(int i=0;i<siz;i++){
+		if(tokens[i].first=="&"){
+			and_id=i;
+			break;
+		}
+	}
+	if(and_id!=-1){
+		for(int i=0;i<and_id;i++){
+			b0+=tokens[i].first;
+		}
+		for(int i=and_id+1;i<siz;i++){
+			b1+=tokens[i].first;
+		}
+		return ParseBexp(b0)&ParseBexp(b1);
+	}
+	// b0 | b1
+	int or_id=-1;
+	for(int i=0;i<siz;i++){
+		if(tokens[i].first=="|"){
+			or_id=i;
+			break;
+		}
+	}
+	if(or_id!=-1){
+		for(int i=0;i<or_id;i++){
+			b0+=tokens[i].first;
+		}
+		for(int i=or_id+1;i<siz;i++){
+			b1+=tokens[i].first;
+		}
+		return ParseBexp(b0)|ParseBexp(b1);
+	}
+
+	return 0;
 }
 //解析出tokens，根据tokens确定语句类型
 void ParseCommandLine(vector<pair<string,int> > tokens){
@@ -133,6 +259,7 @@ void ParseCommandLine(vector<pair<string,int> > tokens){
 	}
 }
 int main(){
+	cout<<ParseBexp("X==Y")<<endl;
 	string code_line;
 	while(getline(cin,code_line)){
 		vector<pair<string,int>> tokens=lexer(code_line);
