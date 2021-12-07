@@ -1,6 +1,14 @@
 x:=1;
 y:=8;
-if x<=y then if x==3 x:=x+1 else x:=1 else x:=x+y;
-while x<=100 do x:=x*2;
-while x<=21313131 do x:=x*2;
-z:=x*y
+if x<=y then 
+	if x==3 
+		then x:=x+1 
+	else 
+		x:=1 
+else x:=x+y;
+while x<=100 do 
+	x:=x*2;
+while x<=2131 do 
+	x:=x+1;
+z:=x-y;
+z:=0
