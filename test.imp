@@ -1,0 +1,5 @@
+X:=3;
+Y:=8;
+if x<=y then x:=x+1 else x:=x+y;
+while x<=y do x:=x+1;
+z:=x+y;
