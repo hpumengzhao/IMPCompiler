@@ -1,5 +1,5 @@
 x:=3;
 y:=8;
-if x<=y then x:=x+1 else x:=x+y;
+if x<=y then if x==3 then x:=x+1 else x:=100 else x:=x+y;
 while x<=y do x:=x+1;
 z:=x+y

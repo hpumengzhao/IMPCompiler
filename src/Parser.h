@@ -53,9 +53,11 @@ int ParseAexp(string s){
 	if(add_id!=-1){
 		for(int i=0;i<add_id;i++){
 			a0+=tokens[i].first;
+			a0+=" ";
 		}
 		for(int i=add_id+1;i<siz;i++){
 			a1+=tokens[i].first;
+			a1+=" ";
 		}
 		return ParseAexp(a0)+ParseAexp(a1);
 	}
@@ -70,9 +72,11 @@ int ParseAexp(string s){
 	if(sub_id!=-1){
 		for(int i=0;i<sub_id;i++){
 			a0+=tokens[i].first;
+			a0+=" ";
 		}
 		for(int i=sub_id+1;i<siz;i++){
 			a1+=tokens[i].first;
+			a1+=" ";
 		}
 		return ParseAexp(a0)-ParseAexp(a1);		
 	}
@@ -86,9 +90,11 @@ int ParseAexp(string s){
 	if(mul_id!=-1){
 		for(int i=0;i<mul_id;i++){
 			a0+=tokens[i].first;
+			a0+=" ";
 		}
 		for(int i=mul_id+1;i<siz;i++){
 			a1+=tokens[i].first;
+			a1+=" ";
 		}
 		return ParseAexp(a0)*ParseAexp(a1);		
 	}	
@@ -108,6 +114,7 @@ bool ParseBexp(string s){
 	if(tokens[0].first=="!"){
 		for(int i=1;i<siz;i++){
 			b0+=tokens[i].first;
+			b0+=" ";
 		}
 		return !ParseBexp(b0);
 	}
@@ -123,9 +130,11 @@ bool ParseBexp(string s){
 	if(and_id!=-1){
 		for(int i=0;i<and_id;i++){
 			b0+=tokens[i].first;
+			b0+=" ";
 		}
 		for(int i=and_id+1;i<siz;i++){
 			b1+=tokens[i].first;
+			b1+=" ";
 		}
 		return ParseBexp(b0)&ParseBexp(b1);
 	}
@@ -140,9 +149,11 @@ bool ParseBexp(string s){
 	if(or_id!=-1){
 		for(int i=0;i<or_id;i++){
 			b0+=tokens[i].first;
+			b0+=" ";
 		}
 		for(int i=or_id+1;i<siz;i++){
 			b1+=tokens[i].first;
+			b1+=" ";
 		}
 		return ParseBexp(b0)|ParseBexp(b1);
 	}
@@ -159,9 +170,11 @@ bool ParseBexp(string s){
 	if(eq_id!=-1){
 		for(int i=0;i<eq_id;i++){
 			a0+=tokens[i].first;
+			a0+=" ";
 		}
 		for(int i=eq_id+1;i<siz;i++){
 			a1+=tokens[i].first;
+			a1+=" ";
 		}
 		return ParseAexp(a0)==ParseAexp(a1);
 	}
@@ -175,9 +188,11 @@ bool ParseBexp(string s){
 	if(lq_id!=-1){
 		for(int i=0;i<lq_id;i++){
 			a0+=tokens[i].first;
+			a0+=" ";
 		}
 		for(int i=lq_id+1;i<siz;i++){
 			a1+=tokens[i].first;
+			a1+=" ";
 		}
 		return ParseAexp(a0)<=ParseAexp(a1);
 	}
@@ -222,6 +237,7 @@ void ParseCommandLine(string s){
 			for(int i=1;i<siz;i++){//b is between the first if and then...
 				if(tokens[i].first!="then"){
 					b+=tokens[i].first;
+					b+=" ";
 				}else{
 					cut_id=i;
 					break;
@@ -236,11 +252,13 @@ void ParseCommandLine(string s){
 				}
 				if(tokens[i].first=="if") ++bracket;
 				c0+=tokens[i].first;
+				c0+=" ";
 			}
 
 			for(int i=nxt_cut_id+1;i<siz;i++){
 				if(tokens[i].first==";") break;
 				c1+=tokens[i].first;
+				c1+=" ";
 			}
 			if(ParseBexp(b)){
 				ParseCommandLine(c0);
@@ -253,13 +271,19 @@ void ParseCommandLine(string s){
 			string c="";
 			int cut_id=-1;
 			for(int i=1;i<siz;i++){
-				if(tokens[i].first!="do") b+=tokens[i].first;
+				if(tokens[i].first!="do"){
+					 b+=tokens[i].first;
+					 b+=" ";
+				}
 				else{
 					cut_id=i;
 					break;
 				}
 			}
-			for(int i=cut_id+1;i<siz;i++) c+=tokens[i].first;
+			for(int i=cut_id+1;i<siz;i++){
+				 c+=tokens[i].first;
+				 c+=" ";
+			}
 			// ParseCommandLine(c);
 			while(ParseBexp(b)){
 				ParseCommandLine(c);
@@ -272,6 +296,7 @@ void ParseCommandLine(string s){
 			for(int i=2;i<(int)tokens.size();i++){
 				if(tokens[i].first!=";"){
 					aexp+=tokens[i].first;
+					aexp+=" ";
 				}else{
 					break;
 				}
