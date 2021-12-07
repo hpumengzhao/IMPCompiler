@@ -360,6 +360,7 @@ void ParseCommandLine(string s){
 		}
 	}
 }
+
 int main(){
 	string source_code;
 	string code_line;
@@ -369,7 +370,7 @@ int main(){
 		all.push_back(code_line);
 		for(char c:code_line){
 			if((int)c==13){
-				 continue;
+				continue;
 			}
 			// cout<<c<<endl;
 			source_code+=c;
