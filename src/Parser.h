@@ -1,90 +1,15 @@
-#include<bits/stdc++.h>
+#include<map>
+#include<iostream>
+#include<vector>
+#include <cassert>
+#include "lexer.h"
 
-using namespace std;
 
 // status_map[k]: The value of all the var in status i; 
 map<int,map<pair<string,bool>,int> > status_map;
 map<string,int> env;
 map<string,bool> vis;
 int now_status=0;
-bool isAlpha(char c){
-	return (c>='a'&&c<='z')||(c>='A'&&c<='Z');
-}
-bool isDigit(char c){
-	return c>='0'&&c<='9';
-}
-bool isSpecial(char c){
-	return c=='+'||c=='-'||c=='*'||
-	c=='='||c==':'||c==';'||c=='!'||
-	c=='|'||c=='&'||c=='<';
-}
-//lexer analysis
-/*{token,id}
-	1:str like var_name
-	2:num 1,2,231...
-	3:others <=,:=....
-*/
-vector<pair<string,int> > lexer(string s){
-	vector<pair<string,int>> tokens;
-
-	string now_token;
-	int now_status=0;
-	for(char c:s){
-		if(isAlpha(c)){
-			if(now_status==0||now_status==1){
-				now_token+=c;
-				now_status=1;
-			}else{
-				int siz=(int)now_token.size();
-				if(siz){
-					tokens.push_back({now_token,now_status});
-				}
-				now_token="";
-				now_token+=c;
-				now_status=1;
-			}
-		}
-		else if(isDigit(c)){
-			if(now_status==0||now_status==2){
-				now_token+=c;
-				now_status=2;
-			}else{
-				int siz=(int)now_token.size();
-				if(siz){
-					tokens.push_back({now_token,now_status});
-				}
-				now_token="";
-				now_token+=c;
-				now_status=2;
-			}
-		}
-		else if(isSpecial(c)){
-			if(now_status==0||now_status==3){
-				now_token+=c;
-				now_status=3;
-			}else{
-				int siz=(int)now_token.size();
-				if(siz){
-					tokens.push_back({now_token,now_status});
-				}
-				now_token="";
-				now_token+=c;
-				now_status=3;
-			}
-		}else if(c==' '){
-			int len=(int)now_token.size();
-			if(len){
-				tokens.push_back({now_token,now_status});
-			}
-			now_token="";
-			now_status=0;
-		}
-	}
-	if(now_token.size()) tokens.push_back({now_token,now_status});
-	now_token="";
-	return tokens;
-}
-
 //return value of string s
 int Eval(string s){
 	int ans=0;
@@ -169,8 +94,6 @@ int ParseAexp(string s){
 	}	
 	return -1;
 }
-
-
 /*
 	Parse Bexp and return the value.
 	b::=true|false|a0==a1|a_0<=a1|!b|b0&b1|b0|b1
@@ -359,26 +282,4 @@ void ParseCommandLine(string s){
 			env[left]=right;
 		}
 	}
-}
-
-int main(){
-	string source_code;
-	string code_line;
-	vector<string> all;
-	while(getline(cin,code_line)){
-		all.push_back(code_line);
-		for(char c:code_line){
-			if((int)c==13){
-				continue;
-			}
-			source_code+=c;
-		}
-	}	
-	cout<<source_code<<endl;
-	ParseCommandLine(source_code);
-	cout<<"final result: "<<endl;
-	for(auto v:env){
-		cout<<v.first<<": "<<v.second<<endl;
-	}
-	return 0;
 }
