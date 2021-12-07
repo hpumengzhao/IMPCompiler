@@ -18,7 +18,7 @@ bool isSpecial(char c){
 	c=='='||c==':'||c==';'||c=='!'||
 	c=='|'||c=='&'||c=='<';
 }
-//词法分析
+//lexer analysis
 /*{token,id}
 	1:str like var_name
 	2:num 1,2,231...
@@ -81,6 +81,7 @@ vector<pair<string,int> > lexer(string s){
 		}
 	}
 	if(now_token.size()) tokens.push_back({now_token,now_status});
+	now_token="";
 	return tokens;
 }
 
@@ -92,12 +93,20 @@ int Eval(string s){
 	}
 	return ans;
 }
-//Parse Aexp and return the value.
+void debug(string s,int status){
+	cout<<"<"<<s<<","<<"status["<<status<<"]>->"<<"Status["<<status+1<<"]"<<endl;
+}
+/*
+Parse Aexp and return the value.
+Aexp:     a::=n|X|a0+a1|a0-a1|a0*a1
+*/
 int ParseAexp(string s){
 	vector<pair<string,int>> tokens=lexer(s);
 	int siz=(int)tokens.size();
 	//a::=n
 	if(tokens[0].second==2&&siz==1){
+		int res=Eval(tokens[0].first);
+
 		return Eval(tokens[0].first);
 	}
 	//a::=X
@@ -257,92 +266,117 @@ bool ParseBexp(string s){
 	c::=skip|X:=a|c0;c1|if b then c0 else c1|while b do c
 */
 void ParseCommandLine(string s){
-
 	vector<pair<string,int> > tokens=lexer(s);
 	int siz=(int)tokens.size();
+	string c0="";
+	string c1="";
 
-	//If should be parsed like Bracket matching
-	if(tokens[0].first=="if"){
-
-		string b;
-		string c0;
-		string c1;
-		int cut_id=-1;
-		for(int i=1;i<siz;i++){//b is between the first if and then...
-			if(tokens[i].first!="then"){
-				b+=tokens[i].first;
-			}else{
-				cut_id=i;
-				break;
-			}
+	int cut_id=-1;
+	for(int i=0;i<siz;i++){
+		if(tokens[i].first==";"){
+			cut_id=i;
+			break;
 		}
-		int nxt_cut_id=-1;//the position of else in (if ... then ... else ...)
-		int bracket=0;
-		for(int i=cut_id+1;i<siz;i++){
-			if(tokens[i].first=="else"&&bracket==0){
-				nxt_cut_id=i;
-				break;		
-			}
-			if(tokens[i].first=="if") ++bracket;
+	}
+	//c=c0,c1
+	if(cut_id!=-1){
+		for(int i=0;i<cut_id;i++){
 			c0+=tokens[i].first;
+			c0+=" ";
 		}
-
-		for(int i=nxt_cut_id+1;i<siz;i++){
-			if(tokens[i].first==";") break;
+		for(int i=cut_id+1;i<siz;i++){
 			c1+=tokens[i].first;
+			c1+=" ";
 		}
-		if(ParseBexp(b)){
-			ParseCommandLine(c0);
-		}else{
-			ParseCommandLine(c1);
-		}
-	}else if(tokens[0].first=="while"){
-		//while b do c ;
-		string b="";
-		string c="";
-		int cut_id=-1;
-		for(int i=1;i<siz;i++){
-			if(tokens[i].first!="do") b+=tokens[i].first;
-			else{
-				cut_id=i;
-				break;
+		ParseCommandLine(c0);
+		ParseCommandLine(c1);
+	}else{
+		if(tokens[0].first=="if"){//If should be parsed like Bracket matching
+			string b;
+			string c0;
+			string c1;
+			int cut_id=-1;
+			for(int i=1;i<siz;i++){//b is between the first if and then...
+				if(tokens[i].first!="then"){
+					b+=tokens[i].first;
+				}else{
+					cut_id=i;
+					break;
+				}
 			}
-		}
-		for(int i=cut_id+1;i<siz-1;i++) c+=tokens[i].first;
-		// ParseCommandLine(c);
-		while(ParseBexp(b)){
-			ParseCommandLine(c);
-		}
-	}else if(tokens[0].first=="skip"){
-		//we do nothing here		
-	}else{//X:=aexp;
-		string left=tokens[0].first;
-		string aexp="";
-		for(int i=2;i<(int)tokens.size();i++){
-			if(tokens[i].first!=";"){
-				aexp+=tokens[i].first;
-			}else{
-				break;
+			int nxt_cut_id=-1;//the position of else in (if ... then ... else ...)
+			int bracket=0;
+			for(int i=cut_id+1;i<siz;i++){
+				if(tokens[i].first=="else"&&bracket==0){
+					nxt_cut_id=i;
+					break;		
+				}
+				if(tokens[i].first=="if") ++bracket;
+				c0+=tokens[i].first;
 			}
-		}
-		int right=ParseAexp(aexp);
 
-		vis[left]=1;
-		env[left]=right;
-		return ;
+			for(int i=nxt_cut_id+1;i<siz;i++){
+				if(tokens[i].first==";") break;
+				c1+=tokens[i].first;
+			}
+			if(ParseBexp(b)){
+				ParseCommandLine(c0);
+			}else{
+				ParseCommandLine(c1);
+			}
+		}else if(tokens[0].first=="while"){
+			//while b do c ;
+			string b="";
+			string c="";
+			int cut_id=-1;
+			for(int i=1;i<siz;i++){
+				if(tokens[i].first!="do") b+=tokens[i].first;
+				else{
+					cut_id=i;
+					break;
+				}
+			}
+			for(int i=cut_id+1;i<siz;i++) c+=tokens[i].first;
+			// ParseCommandLine(c);
+			while(ParseBexp(b)){
+				ParseCommandLine(c);
+			}
+		}else if(tokens[0].first=="skip"){
+			//we do nothing here		
+		}else{//X:=aexp;
+			string left=tokens[0].first;
+			string aexp="";
+			for(int i=2;i<(int)tokens.size();i++){
+				if(tokens[i].first!=";"){
+					aexp+=tokens[i].first;
+				}else{
+					break;
+				}
+			}
+			int right=ParseAexp(aexp);
+
+			vis[left]=1;
+			env[left]=right;
+		}
 	}
 }
 int main(){
-	// cout<<ParseBexp("2<=1|1<=2")<<endl;
+	string source_code;
 	string code_line;
+	vector<string> all;
 	while(getline(cin,code_line)){
-		vector<pair<string,int>> tokens=lexer(code_line);
-		for(auto v:tokens){
-			cout<<v.first<<" ";
+		// cout<<code_line<<endl;
+		all.push_back(code_line);
+		for(char c:code_line){
+			if((int)c==13){
+				 continue;
+			}
+			// cout<<c<<endl;
+			source_code+=c;
 		}
-		cout<<endl;
-		ParseCommandLine(code_line);
 	}	
+	cout<<source_code<<endl;
+	ParseCommandLine(source_code);
 	cout<<"final result: "<<endl;
 	for(auto v:env){
 		cout<<v.first<<": "<<v.second<<endl;
