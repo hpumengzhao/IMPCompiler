@@ -343,7 +343,7 @@ int main(){
 		cout<<endl;
 		ParseCommandLine(code_line);
 	}	
-	cout<<"res: "<<endl;
+	cout<<"final result: "<<endl;
 	for(auto v:env){
 		cout<<v.first<<": "<<v.second<<endl;
 	}
