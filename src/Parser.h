@@ -98,16 +98,20 @@ int ParseAexp(string s){
 		}
 		return ParseAexp(a0)*ParseAexp(a1);		
 	}	
-	return -1;
+	cout<<"Syntax Error"<<endl;
+	exit(-1);
 }
 /*
 	Parse Bexp and return the value.
-	b::=true|false|a0==a1|a_0<=a1|!b|b0&b1|b0|b1
+	b::=true|false|a0==a1|a_0<=a1|!b|b0 and b1|b0 or b1
 */
 bool ParseBexp(string s){
 	vector<pair<string,int> > tokens=lexer(s);
 	int siz=(int)tokens.size();
-	assert(siz>=2);
+	if(siz<2){
+			cout<<"Syntax Error"<<endl;
+		exit(-1);
+	}
 	string b0="";
 	string b1="";
 	//!b
@@ -197,7 +201,8 @@ bool ParseBexp(string s){
 		return ParseAexp(a0)<=ParseAexp(a1);
 	}
 
-	return 0;
+	cout<<"Syntax Error"<<endl;
+	exit(-1);
 }
 /*
 	Parse command
@@ -209,6 +214,10 @@ void ParseCommandLine(string s){
 	string c0="";
 	string c1="";
 
+	if(siz<3){
+		cout<<"Syntax Error!"<<endl;
+		exit(-1);		
+	}
 	int cut_id=-1;
 	for(int i=0;i<siz;i++){
 		if(tokens[i].first==";"){
@@ -228,6 +237,7 @@ void ParseCommandLine(string s){
 		}
 		ParseCommandLine(c0);
 		ParseCommandLine(c1);
+		return ;
 	}else{
 		if(tokens[0].first=="if"){//If should be parsed like Bracket matching
 			string b;
@@ -308,5 +318,8 @@ void ParseCommandLine(string s){
 			vis[left]=1;
 			env[left]=right;
 		}
+		return ;
 	}
+	cout<<"Syntax Error"<<endl;
+	exit(-1);
 }
