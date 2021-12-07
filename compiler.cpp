@@ -97,8 +97,8 @@ void debug(string s,int status){
 	cout<<"<"<<s<<","<<"status["<<status<<"]>->"<<"Status["<<status+1<<"]"<<endl;
 }
 /*
-Parse Aexp and return the value.
-Aexp:     a::=n|X|a0+a1|a0-a1|a0*a1
+	Parse Aexp and return the value.
+	Aexp: a::=n|X|a0+a1|a0-a1|a0*a1
 */
 int ParseAexp(string s){
 	vector<pair<string,int>> tokens=lexer(s);
@@ -262,7 +262,7 @@ bool ParseBexp(string s){
 	return 0;
 }
 /*
-	解析Com
+	Parse command
 	c::=skip|X:=a|c0;c1|if b then c0 else c1|while b do c
 */
 void ParseCommandLine(string s){
@@ -366,13 +366,11 @@ int main(){
 	string code_line;
 	vector<string> all;
 	while(getline(cin,code_line)){
-		// cout<<code_line<<endl;
 		all.push_back(code_line);
 		for(char c:code_line){
 			if((int)c==13){
 				continue;
 			}
-			// cout<<c<<endl;
 			source_code+=c;
 		}
 	}	
