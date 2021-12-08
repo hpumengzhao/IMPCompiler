@@ -17,7 +17,7 @@ int Eval(string s){
 	return ans;
 }
 void debug(string s,int status){
-	cout<<"<"<<s<<","<<"status["<<status<<"]>->"<<"status["<<now_status<<"]"<<endl;
+	cout<<"<"<<s<<","<<"status["<<status<<"]>--->"<<"status["<<now_status<<"]"<<endl;
 }
 /*
 	Parse Aexp and return the value.
@@ -347,7 +347,7 @@ void ParseCommandLine(string s,int status){
 	string c0="";
 	string c1="";
 
-	if(siz<3){
+	if(siz<3&&tokens[0].first!="skip"){
 		cout<<"Syntax Error!"<<endl;
 		exit(-1);		
 	}
@@ -438,7 +438,7 @@ void ParseCommandLine(string s,int status){
 			}
 			debug(s,status);
 		}else if(tokens[0].first=="skip"){
-			//we do nothing here		
+			debug(s,status);		
 		}else{//X:=aexp;
 			string left=tokens[0].first;
 			string aexp="";
