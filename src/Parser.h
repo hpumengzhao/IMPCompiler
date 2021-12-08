@@ -6,9 +6,7 @@
 
 
 // status_map[k]: The value of all the var in status i; 
-map<int,map<pair<string,bool>,int> > status_map;
 map<string,int> env;
-map<string,bool> vis;
 int now_status=0;
 //return value of string s
 int Eval(string s){
