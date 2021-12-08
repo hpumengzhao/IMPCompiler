@@ -5,7 +5,7 @@
 #include "lexer.h"
 
 
-// status_map[k]: The value of all the var in status i; 
+//env[key] is the value of variable key 
 map<string,int> env;
 int now_status=0;
 //return value of string s
