@@ -1,3 +1,5 @@
 x:=3;
 y:=8;
+skip;
+z:=x*y;
 if x<=y then skip else x:=2

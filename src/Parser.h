@@ -342,11 +342,14 @@ bool ParseBexp(string s){
 // }
 
 void ParseCommandLine(string s,int status){
+	if(s.size()==0){
+		cout<<"Syntax Error!"<<endl;
+		exit(-1);			
+	}
 	vector<pair<string,int> > tokens=lexer(s);
 	int siz=(int)tokens.size();
 	string c0="";
 	string c1="";
-
 	if(siz<3&&tokens[0].first!="skip"){
 		cout<<"Syntax Error!"<<endl;
 		exit(-1);		
