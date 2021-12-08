@@ -19,7 +19,7 @@ int Eval(string s){
 	return ans;
 }
 void debug(string s,int status){
-	cout<<"<"<<s<<","<<"status["<<status<<"]>->"<<"Status["<<status+1<<"]"<<endl;
+	cout<<"<"<<s<<","<<"status["<<status<<"]>->"<<"status["<<now_status<<"]"<<endl;
 }
 /*
 	Parse Aexp and return the value.
@@ -31,12 +31,14 @@ int ParseAexp(string s){
 	//a::=n
 	if(tokens[0].second==2&&siz==1){
 		int res=Eval(tokens[0].first);
-
-		return Eval(tokens[0].first);
+		cout<<"<"<<s<<","<<"status"<<now_status<<">--->"<<res<<endl;
+		return res;
 	}
 	//a::=X
 	if(tokens[0].second==1&&siz==1){
-		return env[tokens[0].first];
+		int res=env[tokens[0].first];
+		cout<<"<"<<s<<","<<"status"<<now_status<<">--->"<<res<<endl;
+		return res;
 	}
 
 	string a0="";
@@ -59,7 +61,9 @@ int ParseAexp(string s){
 			a1+=tokens[i].first;
 			a1+=" ";
 		}
-		return ParseAexp(a0)+ParseAexp(a1);
+		int res=ParseAexp(a0)+ParseAexp(a1);
+		cout<<"<"<<s<<","<<"status"<<now_status<<">--->"<<res<<endl;
+		return res;
 	}
 
 	//a::=a0-a1
@@ -78,7 +82,9 @@ int ParseAexp(string s){
 			a1+=tokens[i].first;
 			a1+=" ";
 		}
-		return ParseAexp(a0)-ParseAexp(a1);		
+		int res=ParseAexp(a0)-ParseAexp(a1);
+		cout<<"<"<<s<<","<<"status"<<now_status<<">--->"<<res<<endl;
+		return res;	
 	}
 	//a::=a0*a1
 	int mul_id=-1;
@@ -96,7 +102,9 @@ int ParseAexp(string s){
 			a1+=tokens[i].first;
 			a1+=" ";
 		}
-		return ParseAexp(a0)*ParseAexp(a1);		
+		int res=ParseAexp(a0)*ParseAexp(a1);
+		cout<<"<"<<s<<","<<"status"<<now_status<<">--->"<<res<<endl;
+		return res;		
 	}	
 	cout<<"Syntax Error"<<endl;
 	exit(-1);
@@ -120,7 +128,9 @@ bool ParseBexp(string s){
 			b0+=tokens[i].first;
 			b0+=" ";
 		}
-		return !ParseBexp(b0);
+		bool res=!ParseBexp(b0);
+		cout<<"<"<<s<<","<<"status"<<now_status<<">--->"<<(res?"true":"false")<<endl;
+		return res;
 	}
 	//b0 & b1;
 
@@ -140,7 +150,9 @@ bool ParseBexp(string s){
 			b1+=tokens[i].first;
 			b1+=" ";
 		}
-		return ParseBexp(b0)&ParseBexp(b1);
+		bool res=ParseBexp(b0)&ParseBexp(b1);
+		cout<<"<"<<s<<","<<"status"<<now_status<<">--->"<<(res?"true":"false")<<endl;
+		return res;
 	}
 	// b0 | b1
 	int or_id=-1;
@@ -159,7 +171,9 @@ bool ParseBexp(string s){
 			b1+=tokens[i].first;
 			b1+=" ";
 		}
-		return ParseBexp(b0)|ParseBexp(b1);
+		bool res=ParseBexp(b0)|ParseBexp(b1);
+		cout<<"<"<<s<<","<<"status"<<now_status<<">--->"<<(res?"true":"false")<<endl;
+		return res;
 	}
 
 	string a0="";
@@ -180,7 +194,9 @@ bool ParseBexp(string s){
 			a1+=tokens[i].first;
 			a1+=" ";
 		}
-		return ParseAexp(a0)==ParseAexp(a1);
+		bool res=ParseAexp(a0)==ParseAexp(a1);
+		cout<<"<"<<s<<","<<"status"<<now_status<<">--->"<<(res?"true":"false")<<endl;
+		return res;
 	}
 	//a0<=a1
 	int lq_id=-1;
@@ -198,7 +214,9 @@ bool ParseBexp(string s){
 			a1+=tokens[i].first;
 			a1+=" ";
 		}
-		return ParseAexp(a0)<=ParseAexp(a1);
+		bool res=ParseAexp(a0)<=ParseAexp(a1);
+		cout<<"<"<<s<<","<<"status"<<now_status<<">--->"<<(res?"true":"false")<<endl;
+		return res;
 	}
 
 	cout<<"Syntax Error"<<endl;
@@ -208,7 +226,124 @@ bool ParseBexp(string s){
 	Parse command
 	c::=skip|X:=a|c0;c1|if b then c0 else c1|while b do c
 */
-void ParseCommandLine(string s){
+// void ParseCommandLine(string s){
+// 	vector<pair<string,int> > tokens=lexer(s);
+// 	int siz=(int)tokens.size();
+// 	string c0="";
+// 	string c1="";
+
+// 	if(siz<3){
+// 		cout<<"Syntax Error!"<<endl;
+// 		exit(-1);		
+// 	}
+// 	int cut_id=-1;
+// 	for(int i=0;i<siz;i++){
+// 		if(tokens[i].first==";"){
+// 			cut_id=i;
+// 			break;
+// 		}
+// 	}
+// 	//c=c0,c1
+// 	if(cut_id!=-1){
+// 		for(int i=0;i<cut_id;i++){
+// 			c0+=tokens[i].first;
+// 			c0+=" ";
+// 		}
+// 		for(int i=cut_id+1;i<siz;i++){
+// 			c1+=tokens[i].first;
+// 			c1+=" ";
+// 		}
+// 		ParseCommandLine(c0);
+// 		ParseCommandLine(c1);
+// 		return ;
+// 	}else{
+// 		if(tokens[0].first=="if"){//If should be parsed like Bracket matching
+// 			string b;
+// 			string c0;
+// 			string c1;
+// 			int cut_id=-1;
+// 			for(int i=1;i<siz;i++){//b is between the first if and then...
+// 				if(tokens[i].first!="then"){
+// 					b+=tokens[i].first;
+// 					b+=" ";
+// 				}else{
+// 					cut_id=i;
+// 					break;
+// 				}
+// 			}
+// 			int nxt_cut_id=-1;//the position of else in (if ... then ... else ...)
+// 			int bracket=0;
+// 			for(int i=cut_id+1;i<siz;i++){
+// 				if(tokens[i].first=="else"&&bracket==0){
+// 					nxt_cut_id=i;
+// 					break;		
+// 				}
+// 				if(tokens[i].first=="if") ++bracket;
+// 				if(tokens[i].first=="else") --bracket;
+// 				c0+=tokens[i].first;
+// 				c0+=" ";
+// 			}
+
+	
+// 			for(int i=nxt_cut_id+1;i<siz;i++){
+// 				if(tokens[i].first==";") break;
+// 				c1+=tokens[i].first;
+// 				c1+=" ";
+// 			}
+// 			if(ParseBexp(b)){
+// 				ParseCommandLine(c0);
+// 			}else{
+// 				ParseCommandLine(c1);
+// 			}
+// 		}else if(tokens[0].first=="while"){
+// 			//while b do c ;
+// 			string b="";
+// 			string c="";
+// 			int cut_id=-1;
+// 			for(int i=1;i<siz;i++){
+// 				if(tokens[i].first!="do"){
+// 					 b+=tokens[i].first;
+// 					 b+=" ";
+// 				}
+// 				else{
+// 					cut_id=i;
+// 					break;
+// 				}
+// 			}
+// 			for(int i=cut_id+1;i<siz;i++){
+// 				 c+=tokens[i].first;
+// 				 c+=" ";
+// 			}
+// 			// ParseCommandLine(c);
+// 			while(ParseBexp(b)){
+// 				ParseCommandLine(c);
+// 			}
+// 		}else if(tokens[0].first=="skip"){
+// 			//we do nothing here		
+// 		}else{//X:=aexp;
+// 			string left=tokens[0].first;
+// 			string aexp="";
+// 			for(int i=2;i<(int)tokens.size();i++){
+// 				if(tokens[i].first!=";"){
+// 					aexp+=tokens[i].first;
+// 					aexp+=" ";
+// 				}else{
+// 					break;
+// 				}
+// 			}
+// 			int left_val=ParseAexp(left);
+// 			int right=ParseAexp(aexp);
+// 			debug(s,now_status);
+// 			vis[left]=1;
+// 			env[left]=right;
+// 		}
+// 		return ;
+// 	}
+// 	cout<<"Syntax Error"<<endl;
+// 	exit(-1);
+// }
+
+void ParseCommandLine(string s,int status){
 	vector<pair<string,int> > tokens=lexer(s);
 	int siz=(int)tokens.size();
 	string c0="";
@@ -235,8 +370,9 @@ void ParseCommandLine(string s){
 			c1+=tokens[i].first;
 			c1+=" ";
 		}
-		ParseCommandLine(c0);
-		ParseCommandLine(c1);
+		ParseCommandLine(c0,now_status);
+		ParseCommandLine(c1,now_status);
+		// debug(s,status);
 		return ;
 	}else{
 		if(tokens[0].first=="if"){//If should be parsed like Bracket matching
@@ -273,9 +409,11 @@ void ParseCommandLine(string s){
 				c1+=" ";
 			}
 			if(ParseBexp(b)){
-				ParseCommandLine(c0);
+				ParseCommandLine(c0,now_status);
+				debug(s,status);
 			}else{
-				ParseCommandLine(c1);
+				ParseCommandLine(c1,now_status);
+				debug(s,status);
 			}
 		}else if(tokens[0].first=="while"){
 			//while b do c ;
@@ -298,8 +436,9 @@ void ParseCommandLine(string s){
 			}
 			// ParseCommandLine(c);
 			while(ParseBexp(b)){
-				ParseCommandLine(c);
+				ParseCommandLine(c,now_status);
 			}
+			debug(s,status);
 		}else if(tokens[0].first=="skip"){
 			//we do nothing here		
 		}else{//X:=aexp;
@@ -313,9 +452,10 @@ void ParseCommandLine(string s){
 					break;
 				}
 			}
+			int left_val=ParseAexp(left);
 			int right=ParseAexp(aexp);
-
-			vis[left]=1;
+			++now_status;
+			debug(s,status);
 			env[left]=right;
 		}
 		return ;

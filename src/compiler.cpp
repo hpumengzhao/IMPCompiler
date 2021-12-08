@@ -15,7 +15,7 @@ int main(){
 			source_code+=c;
 		}
 	}	
-	ParseCommandLine(source_code);
+	ParseCommandLine(source_code,0);
 	cout<<"final result: "<<endl;
 	for(auto v:env){
 		cout<<v.first<<": "<<v.second<<endl;
