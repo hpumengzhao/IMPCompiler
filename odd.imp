@@ -1,0 +1,5 @@
+x:=0;
+while x<=100 do x:=x+1;
+ans=0;
+while ans*2<=x do ans:=ans+1;
+ans:=ans-1

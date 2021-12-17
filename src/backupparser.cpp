@@ -342,7 +342,6 @@ bool ParseBexp(string s){
 // }
 
 void ParseCommandLine(string s,int status){
-	// cout<<s<<endl;
 	if(s.size()==0){
 		return ;		
 	}
@@ -355,6 +354,7 @@ void ParseCommandLine(string s,int status){
 		exit(-1);		
 	}
 	int cut_id=-1;
+	cout<<tokens[0].first<<endl;
 	if(tokens[0].first!="if"&&tokens[0].first!="while"){
 		for(int i=0;i<siz;i++){
 			if(tokens[i].first==";"){
@@ -373,10 +373,81 @@ void ParseCommandLine(string s,int status){
 				c1+=" ";
 			}
 			ParseCommandLine(c0,now_status);
-			// cout<<"dasd"<<" " <<c1<<endl;
 			ParseCommandLine(c1,now_status);
 			// debug(s,status);
-		}else{
+			return ;
+		}
+	}else{
+		if(tokens[0].first=="if"){//If should be parsed like Bracket matching
+			string b;
+			string c0;
+			string c1;
+			int cut_id=-1;
+			for(int i=1;i<siz;i++){//b is between the first if and then...
+				if(tokens[i].first!="then"){
+					b+=tokens[i].first;
+					b+=" ";
+				}else{
+					cut_id=i;
+					break;
+				}
+			}
+			int nxt_cut_id=-1;//the position of else in (if ... then ... else ...)
+			int bracket=0;
+			for(int i=cut_id+1;i<siz;i++){
+				if(tokens[i].first=="else"&&bracket==0){
+					nxt_cut_id=i;
+					break;		
+				}
+				if(tokens[i].first=="if") ++bracket;
+				if(tokens[i].first=="else") --bracket;
+				c0+=tokens[i].first;
+				c0+=" ";
+			}
+			for(int i=nxt_cut_id+1;i<siz;i++){
+				if(tokens[i].first=="fi") break;
+				c1+=tokens[i].first;
+				c1+=" ";
+			}
+			if(ParseBexp(b)){
+				ParseCommandLine(c0,now_status);
+				debug(s,status);
+			}else{
+				ParseCommandLine(c1,now_status);
+				debug(s,status);
+			}
+		}else if(tokens[0].first=="while"){
+			//while b do c1;c2 od
+			string b="";
+			string c="";
+			int cut_id=-1;
+			for(int i=1;i<siz;i++){
+				if(tokens[i].first!="do"){
+					 b+=tokens[i].first;
+					 b+=" ";
+				}
+				else{
+					cut_id=i;
+					break;
+				}
+			}
+			for(int i=cut_id+1;i<siz;i++){
+				 if(tokens[i].first=="od"){
+				 	break;
+				 }
+				 c+=tokens[i].first;
+				 c+=" ";
+			}
+
+			// ParseCommandLine(c);
+			cout<<c<<endl;
+			while(ParseBexp(b)){
+				ParseCommandLine(c,now_status);
+			}
+			debug(s,status);
+		}else if(tokens[0].first=="skip"){
+			debug(s,status);		
+		}else{//X:=aexp;
 			string left=tokens[0].first;
 			string aexp="";
 			for(int i=2;i<(int)tokens.size();i++){
@@ -392,115 +463,9 @@ void ParseCommandLine(string s,int status){
 			++now_status;
 			debug(s,status);
 			env[left]=right;
-			return ;
 		}
-	}else if(tokens[0].first=="if"){// if b then c0 else c1 fi;nxt
-		string b;
-		string c0;
-		string c1;
-
-		string nxt="";
-		int then_id=-1;
-		for(int i=1;i<siz;i++){
-			if(tokens[i].first=="then"){
-				then_id=i;
-				break;
-			}
-			b+=tokens[i].first;
-			b+=" ";
-		}
-
-		int balance=0;
-		int else_id=-1;
-		for(int i=then_id+1;i<siz;i++){
-			if(tokens[i].first=="else"&&balance==0){
-				else_id=i;
-				break;
-			}
-			if(tokens[i].first=="if"){
-				++balance;
-			}
-			if(tokens[i].first=="else"){
-				--balance;
-			}
-			c0+=tokens[i].first;
-			c0+=" ";
-		}
-		int fi_id=-1;
-		for(int i=else_id+1;i<siz;i++){
-			if(tokens[i].first=="fi"){
-				fi_id=i;
-				break;
-			}
-			c1+=tokens[i].first;
-			c1+=" ";
-		}
-
-		if(fi_id<siz-1){
-			//Parse if 
-			if(ParseBexp(b)){
-				ParseCommandLine(c0,now_status);
-				debug(s,status);
-			}else{
-				ParseCommandLine(c1,now_status);
-				debug(s,status);
-			}
-			for(int i=fi_id+1;i<siz;i++){
-				nxt+=tokens[i].first;
-				nxt+=" ";
-			}
-			ParseCommandLine(nxt,now_status);
-		}
-		else{//over 
-			if(ParseBexp(b)){
-				ParseCommandLine(c0,now_status);
-				debug(s,status);
-			}else{
-				ParseCommandLine(c1,now_status);
-				debug(s,status);
-			}
-			return ;
-		}
-	}else if(tokens[0].first=="while"){//while b do c1;c2 od;nxt
-		string b="";
-		string c="";
-		string nxt="";
-		int do_id=-1;
-		for(int i=1;i<siz;i++){
-			if(tokens[i].first=="do"){
-				do_id=i;
-				break;
-			}
-			b+=tokens[i].first;
-			b+=" ";
-		}
-
-		int balance=0;
-		int od_id=-1;
-		for(int i=do_id+1;i<siz;i++){
-			if(tokens[i].first=="od"&&balance==0){
-				od_id=i;
-				break;
-			}
-			c+=tokens[i].first;
-			c+=" ";
-		}
-		if(od_id<siz-1){
-			while(ParseBexp(b)){
-				ParseCommandLine(c,now_status);
-			}	
-			for(int i=od_id+1;i<siz;i++){
-				nxt+=tokens[i].first;
-				nxt+=" ";
-			}			
-			ParseCommandLine(nxt,now_status);
-		}else{
-			while(ParseBexp(b)){
-				ParseCommandLine(c,now_status);
-			}			
-		}
-	}else{
-		cout<<"Syntax Error!"<<endl;
-		exit(-1);
+		return ;
 	}
+	cout<<"Syntax Error"<<endl;
+	exit(-1);
 }
